@@ -8,6 +8,7 @@ with topic/source/platform/difficulty pill filters and per-user progress synced 
 - **Progress:** Supabase Postgres table `progress`, protected by row-level security (each user sees only their own rows).
 - **Offline:** ticks are cached on the device and queued; they sync automatically when Supabase is reachable again.
 - **Keep-alive:** a Cloudflare Worker pings the database every 3 days so the free project doesn't pause.
+- **Repo:** github.com/nikhilgautam96/dsa-tracker-app-supabase
 - **Hosting:** Cloudflare Workers static assets (Cloudflare's successor to Pages; global CDN, free unlimited static requests).
 
 ## One-time setup
