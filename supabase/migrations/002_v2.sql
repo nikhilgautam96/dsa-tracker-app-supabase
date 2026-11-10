@@ -150,6 +150,7 @@ $$;
 create index if not exists progress_user_version_idx on public.progress (user_id, version_id);
 
 -- needs_link is only ever set by the migration / the legacy import function, never by clients.
+-- (Superseded by 003_needs_link_upsert.sql, which also lets upserts echo an existing flag.)
 create or replace function public.progress_guard()
 returns trigger
 language plpgsql

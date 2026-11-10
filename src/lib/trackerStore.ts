@@ -416,13 +416,16 @@ export class TrackerStore {
   }
 
   private progressRow(p: PendingProgress) {
-    // needs_link is deliberately omitted: only the server sets it (pre-v2 rows); adding a link clears it there.
+    // needs_link is echoed only for rows the server already flagged (pre-v2 solves without a link): Postgres checks
+    // the "solved needs a link" rule on the proposed row before the upsert conflict, so it must be present. The
+    // server refuses needs_link = true for any row that isn't already flagged (migration 003).
     return {
       user_id: this.userId,
       version_id: p.vid,
       problem_key: p.pk,
       solved: p.entry.solved,
       solution_url: p.entry.solutionUrl,
+      needs_link: p.entry.solved && !p.entry.solutionUrl && p.entry.needsLink,
       revisit: p.entry.revisit,
       solved_at: p.entry.solvedAt,
       updated_at: p.at,
@@ -448,7 +451,8 @@ export class TrackerStore {
         if (this.pendingProgress.get(k)?.at === p.at) this.pendingProgress.delete(k);
       }
       if (rejected) {
-        this.rejection = `${rejected} change${rejected > 1 ? 's were' : ' was'} refused by the server and undone (${error.message}).`;
+        this.rejection = `${rejected} change${rejected > 1 ? 's were' : ' was'} refused by the server and undone. If this keeps happening, reload the page.`;
+        console.warn('[tracker] server rejected changes:', error);
         setTimeout(() => void this.pull(), 0);
       }
     }
