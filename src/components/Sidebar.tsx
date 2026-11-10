@@ -138,7 +138,7 @@ export function Sidebar({ store, session, topics, allCount, selected, onPickTopi
           )}
           <span className="min-w-0 flex-1">
             <span className="block truncate text-meta">{name}</span>
-            <span className="block truncate text-micro text-fg-subtle">{session.user.email}</span>
+            {name !== session.user.email && <span className="block truncate text-micro text-fg-subtle">{session.user.email}</span>}
           </span>
           <button type="button" className="btn btn-ghost size-8 px-0" onClick={onSignOut} aria-label="Sign out" title="Sign out">
             <LogOut className="size-4" aria-hidden="true" />

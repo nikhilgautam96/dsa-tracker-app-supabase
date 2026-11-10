@@ -209,9 +209,9 @@ export function Tracker({ data, session, onSignOut }: TrackerProps) {
 
   return (
     <div className="min-h-dvh bg-canvas text-fg md:grid md:grid-cols-[17.5rem_minmax(0,1fr)]">
-      <aside className="sticky top-0 hidden h-dvh border-r border-line-soft md:block">{sidebar}</aside>
+      {!mobile && <aside className="sticky top-0 h-dvh border-r border-line-soft">{sidebar}</aside>}
       <Sheet open={drawer && mobile} onClose={() => setDrawer(false)} side="left" title="Menu" hideTitle>
-        <div className="-mx-5 -mb-5 h-[calc(100dvh-1rem)]">{sidebar}</div>
+        {mobile && <div className="-mx-5 -mb-5 h-[calc(100dvh-1rem)]">{sidebar}</div>}
       </Sheet>
 
       <div className="min-w-0">
