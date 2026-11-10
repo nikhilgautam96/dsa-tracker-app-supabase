@@ -8,6 +8,7 @@ with topic/source/platform/difficulty pill filters and per-user progress synced 
 - **Progress:** Supabase Postgres table `progress`, protected by row-level security (each user sees only their own rows).
 - **Offline:** ticks are cached on the device and queued; they sync automatically when Supabase is reachable again.
 - **Keep-alive:** a Cloudflare Worker pings the database every 3 days so the free project doesn't pause.
+- **Live:** https://dsa-tracker.nikhilgautam.workers.dev
 - **Repo:** github.com/nikhilgautam96/dsa-tracker-app-supabase
 - **Hosting:** Cloudflare Workers static assets (Cloudflare's successor to Pages; global CDN, free unlimited static requests).
 
@@ -22,7 +23,7 @@ with topic/source/platform/difficulty pill filters and per-user progress synced 
    insert into public.allowed_emails (email, note) values ('you@example.com', 'owner');
    ```
 4. **Auth URLs** — *Authentication → URL Configuration*: set **Site URL** to your deployed URL
-   (e.g. `https://dsa-tracker.<your-subdomain>.workers.dev`) and add `http://localhost:5173` to **Redirect URLs** for local dev.
+   (`https://dsa-tracker.nikhilgautam.workers.dev`) and add `http://localhost:5173` to **Redirect URLs** for local dev.
 5. **Optional, recommended:** *Authentication → Sign In / Providers* → turn off "Allow new users to sign up" and invite
    people from *Authentication → Users → Invite*. The allowlist already blocks data access; this also stops strangers
    from creating empty accounts.
