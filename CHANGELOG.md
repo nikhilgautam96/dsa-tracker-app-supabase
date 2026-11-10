@@ -6,6 +6,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-11
+
 ### Added
 
 - Google sign-in, replacing the email magic link. The invite list still applies, and the "Not invited" screen offers "Use a different Google account".
