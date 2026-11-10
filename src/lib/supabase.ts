@@ -7,10 +7,8 @@ const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string |
 /** True when the Supabase env vars are present (see .env.example). */
 export const isConfigured = Boolean(url && publishableKey && !url.includes('YOUR-PROJECT-REF') && publishableKey.startsWith('sb_publishable_'));
 
-export const googleEnabled = import.meta.env.VITE_ENABLE_GOOGLE === 'true';
-
 export const supabase: SupabaseClient | null = isConfigured
   ? createClient(url!, publishableKey!, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' },
     })
   : null;
