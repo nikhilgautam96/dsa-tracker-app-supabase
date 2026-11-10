@@ -3,8 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f6f4" />
+    <meta name="description" content="Invite-only DSA practice tracker" />
     <title>DSA Master Tracker</title>
+    <!-- Theme before first paint (no flash). Light by default; dark only after the user chooses it. Mirrors the portfolio. -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.dataset.theme = 'dark';
+            var m = document.querySelector('meta[name="theme-color"]');
+            if (m) m.setAttribute('content', '#1f1e1d');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

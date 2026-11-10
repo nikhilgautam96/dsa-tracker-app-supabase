@@ -40,15 +40,33 @@ export interface ProblemData {
   items: Problem[];
 }
 
-export type Level = 'All' | 'Easy' | 'Medium' | 'Hard';
+/** Per-version state of one problem. */
+export interface Entry {
+  solved: boolean;
+  solutionUrl: string | null;
+  /** solved before solution links were required; the app asks for a link */
+  needsLink: boolean;
+  revisit: boolean;
+  solvedAt: string | null;
+}
+
+export interface TrackerVersion {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export type Level = 'Easy' | 'Medium' | 'Hard';
 export type Status = 'All' | 'Unsolved' | 'Solved';
 
 export interface Filters {
   cat: Set<string>;
   src: Set<string>;
   plat: Set<string>;
+  level: Set<Level>;
   status: Status;
-  level: Level;
+  revisit: boolean;
+  missingLink: boolean;
   q: string;
 }
 
