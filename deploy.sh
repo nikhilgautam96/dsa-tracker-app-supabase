@@ -9,5 +9,6 @@ set -a; source .env; set +a
 npm run build
 npx wrangler deploy                      # site: uses ./wrangler.jsonc, uploads ./dist
 
-( cd workers/keepalive && npx wrangler deploy \
-    --var "SUPABASE_URL:${VITE_SUPABASE_URL}" --var "SUPABASE_PUBLISHABLE_KEY:${VITE_SUPABASE_PUBLISHABLE_KEY}" )
+# --config is required: run from a subfolder, wrangler picks up the root wrangler.jsonc and redeploys the site instead
+npx wrangler deploy --config workers/keepalive/wrangler.toml \
+  --var "SUPABASE_URL:${VITE_SUPABASE_URL}" --var "SUPABASE_PUBLISHABLE_KEY:${VITE_SUPABASE_PUBLISHABLE_KEY}"

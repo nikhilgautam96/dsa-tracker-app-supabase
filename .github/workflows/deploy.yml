@@ -78,8 +78,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4'
-          workingDirectory: workers/keepalive
+          # --config is required: from a subfolder, wrangler resolves the root wrangler.jsonc (the site) instead
           command: >-
-            deploy
+            deploy --config workers/keepalive/wrangler.toml
             --var SUPABASE_URL:${{ env.SUPABASE_URL }}
             --var SUPABASE_PUBLISHABLE_KEY:${{ env.SUPABASE_PUBLISHABLE_KEY }}

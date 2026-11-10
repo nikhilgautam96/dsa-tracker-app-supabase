@@ -1,6 +1,7 @@
 name = "dsa-tracker-keepalive"
 main = "index.js"
 compatibility_date = "2026-11-01"
+workers_dev = true
 
 [triggers]
 # 06:00 UTC every 3rd day — well inside Supabase's ~7-day inactivity window
