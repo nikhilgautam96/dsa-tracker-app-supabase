@@ -19,10 +19,11 @@ jobs:
   check:
     runs-on: ubuntu-latest
     env:
-      # Public values (the publishable key ships in the browser bundle anyway) — set as repository *variables*.
-      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
-      VITE_ENABLE_GOOGLE: ${{ vars.VITE_ENABLE_GOOGLE || 'false' }}
+      # Public values (the publishable key ships in the browser bundle anyway).
+      # Read from repository variables, falling back to secrets of the same name.
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_ENABLE_GOOGLE: ${{ vars.VITE_ENABLE_GOOGLE || secrets.VITE_ENABLE_GOOGLE || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,6 +32,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - name: Require Supabase settings on main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          [ -n "$VITE_SUPABASE_URL" ] && [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] || {
+            echo "::error::VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY are empty. Add them under Settings → Secrets and variables → Actions."; exit 1; }
       - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
@@ -43,6 +49,9 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment: production
+    env:
+      SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -72,5 +81,5 @@ jobs:
           workingDirectory: workers/keepalive
           command: >-
             deploy
-            --var SUPABASE_URL:${{ vars.VITE_SUPABASE_URL }}
-            --var SUPABASE_PUBLISHABLE_KEY:${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+            --var SUPABASE_URL:${{ env.SUPABASE_URL }}
+            --var SUPABASE_PUBLISHABLE_KEY:${{ env.SUPABASE_PUBLISHABLE_KEY }}

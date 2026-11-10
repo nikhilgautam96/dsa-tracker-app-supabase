@@ -51,6 +51,7 @@ git tag v1.1.0 && git push --tags      # after updating CHANGELOG.md
 ```
 
 GitHub Actions (`.github/workflows/deploy.yml`) needs, under *Settings → Secrets and variables → Actions*:
+(the three `VITE_` values may be added as either variables or secrets; the workflow reads both)
 
 | Kind | Name | Value |
 |---|---|---|
