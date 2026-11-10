@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
-import { ProgressStore } from '../lib/progressStore';
+import { TrackerStore } from '../lib/trackerStore';
 import { supabase } from '../lib/supabase';
 
-/** One ProgressStore per signed-in user; re-syncs on reconnect and when the tab regains focus. */
-export function useProgress(userId: string) {
-  const store = useMemo(() => new ProgressStore(supabase!, userId), [userId]);
+/** One TrackerStore per signed-in user; re-syncs on reconnect and when the tab regains focus. */
+export function useTracker(userId: string): TrackerStore {
+  const store = useMemo(() => new TrackerStore(supabase!, userId), [userId]);
 
   useEffect(() => {
     void store.pull();
@@ -19,7 +19,6 @@ export function useProgress(userId: string) {
     };
   }, [store]);
 
-  // re-render whenever the store changes
   useSyncExternalStore(store.subscribe, store.getVersion);
   return store;
 }

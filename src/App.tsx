@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ProblemData } from './lib/types';
 import { isConfigured } from './lib/supabase';
 import { useAuth } from './hooks/useAuth';
-import { Login, NotConfigured, NotInvited } from './components/Login';
+import { Login, NotConfigured, NotInvited, Splash } from './components/AuthScreens';
 import { Tracker } from './components/Tracker';
 
 function useProblems() {
@@ -20,24 +20,16 @@ function useProblems() {
   return { data, error };
 }
 
-function Splash({ text }: { text: string }) {
-  return (
-    <div className="center">
-      <p className="muted">{text}</p>
-    </div>
-  );
-}
-
 export default function App() {
-  const { session, loading, access, signOut } = useAuth();
+  const { session, loading, access, authError, signInWithGoogle, signOut, switchAccount } = useAuth();
   const { data, error } = useProblems();
 
   if (!isConfigured) return <NotConfigured />;
   if (loading) return <Splash text="Loading…" />;
-  if (!session) return <Login />;
+  if (!session) return <Login error={authError} onGoogle={() => void signInWithGoogle()} />;
   if (access === 'unknown') return <Splash text="Checking access…" />;
-  if (access === 'denied') return <NotInvited email={session.user.email ?? ''} onSignOut={signOut} />;
-  if (error) return <Splash text={`Couldn't load the problem list (${error}). Reload to retry.`} />;
+  if (access === 'denied') return <NotInvited email={session.user.email ?? ''} onSwitch={() => void switchAccount()} onSignOut={() => void signOut()} />;
+  if (error) return <Splash error text={`Couldn’t load the problem list (${error}).`} />;
   if (!data) return <Splash text="Loading problems…" />;
-  return <Tracker data={data} session={session} onSignOut={signOut} />;
+  return <Tracker data={data} session={session} onSignOut={() => void signOut()} />;
 }

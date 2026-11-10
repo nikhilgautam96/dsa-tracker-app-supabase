@@ -6,6 +6,33 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-11
+
+### Added
+
+- Google sign-in, replacing the email magic link. The invite list still applies, and the "Not invited" screen offers "Use a different Google account".
+- Versions: up to 5 separate tracking rounds per user, each starting from zero, with create, rename, switch and delete. Existing progress moved into "Version 1".
+- A solution link is required to mark a problem solved. It is enforced in the UI, the offline queue and the database. Problems solved earlier are kept with an "add link" badge, and a "Missing link" filter lists them.
+- The owner import pre-fills 62 LeetCode submission links found in Notion.
+- Revisit flag per problem and version, with a Revisit filter.
+- Per-problem notes, shared across versions and autosaved.
+- Detail panel with the solution, revisit, notes, sources, difficulty source and Pepcoding videos.
+- Light/dark theme toggle (light by default, no flash on load).
+
+### Changed
+
+- Redesign: sidebar with versions and per-topic progress, a compact sticky filter bar (Source/Platform dropdowns, status, difficulty, flags, removable chips) and calmer rows.
+- Mobile: the sidebar becomes a drawer, filters open in a bottom sheet, and rows become compact cards.
+- Visual style matches the portfolio: Dove Grey & Pearl Silver tokens, deep-rose/lavender accent, IBM Plex Sans/Mono and Newsreader. Difficulty colours meet WCAG AA in both themes.
+- Styling moved to Tailwind CSS v4.
+- Database: migrations now live in `supabase/migrations/` (001 init, 002 v2, 003 upsert fix).
+
+### Fixed
+
+- CI reads the Supabase settings from either repository variables or secrets, and fails early on `main` if they are missing.
+- The keep-alive worker deploys with its own config. Before, running Wrangler from its folder redeployed the site instead.
+- Anonymous users can no longer call the allowlist helper functions.
+
 ## [1.0.0] - 2026-11-11
 
 ### Added
