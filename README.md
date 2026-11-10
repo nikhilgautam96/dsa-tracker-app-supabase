@@ -38,8 +38,10 @@ These are checked in Postgres, not only in the UI, so a hand-crafted request can
    ```
 4. **Google sign-in:** follow the guide below.
 5. **Auth URLs:** under *Authentication → URL Configuration*:
-   - **Site URL:** `https://dsa-tracker.nikhilgautam.workers.dev`
-   - **Redirect URLs:** add the same URL and `http://localhost:5173`
+   - **Site URL:** `https://dsa-tracker.nikhilgautam.workers.dev`. Supabase's default is `http://localhost:3000`, and
+     any redirect not on the list below falls back to it, so change it.
+   - **Redirect URLs:** `https://dsa-tracker.nikhilgautam.workers.dev/**` and `http://localhost:5173/**`. Keep the `/**`
+     wildcard: without it the app's return address (with a trailing slash) doesn't match and you land on the Site URL.
 
 ### Google sign-in (dashboard steps)
 
