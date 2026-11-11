@@ -21,6 +21,7 @@ export const emptyFilters = (): Filters => ({
   cat: new Set(),
   src: new Set(),
   plat: new Set(),
+  company: new Set(),
   level: new Set(),
   status: 'All',
   revisit: false,
@@ -29,9 +30,9 @@ export const emptyFilters = (): Filters => ({
 });
 
 export const activeFilterCount = (f: Filters): number =>
-  f.src.size + f.plat.size + f.level.size + (f.status !== 'All' ? 1 : 0) + (f.revisit ? 1 : 0) + (f.missingLink ? 1 : 0);
+  f.src.size + f.plat.size + f.company.size + f.level.size + (f.status !== 'All' ? 1 : 0) + (f.revisit ? 1 : 0) + (f.missingLink ? 1 : 0);
 
-export type FacetSkip = 'cat' | 'src' | 'plat' | null;
+export type FacetSkip = 'cat' | 'src' | 'plat' | 'company' | null;
 
 /**
  * Does a problem pass the filters? `skip` ignores one facet so its options can show how many results each
@@ -41,6 +42,7 @@ export function matches(p: Problem, f: Filters, entry: (pk: string) => Entry, sk
   if (skip !== 'cat' && f.cat.size && !f.cat.has(p.cat)) return false;
   if (skip !== 'src' && f.src.size && !p.sources.some((s) => f.src.has(srcGroup(s)))) return false;
   if (skip !== 'plat' && f.plat.size && !f.plat.has(p.platform)) return false;
+  if (skip !== 'company' && f.company.size && !(p.companies ?? []).some((c) => f.company.has(c))) return false;
   if (f.level.size && !f.level.has(p.level as Level)) return false;
   if (f.status !== 'All' || f.revisit || f.missingLink) {
     const e = entry(p.pk);
@@ -50,10 +52,15 @@ export function matches(p: Problem, f: Filters, entry: (pk: string) => Entry, sk
     if (f.missingLink && !(e.solved && e.needsLink)) return false;
   }
   if (f.q) {
-    const hay = [p.title, p.num ?? '', p.platform, p.cat, ...p.tags, ...p.notes, ...p.videos.map((v) => v.t)].join(' ').toLowerCase();
+    const hay = [p.title, p.num ?? '', p.platform, p.cat, ...p.tags, ...(p.companies ?? []), ...p.notes, ...p.videos.map((v) => v.t)].join(' ').toLowerCase();
     if (!f.q.split(/\s+/).every((w) => hay.includes(w))) return false;
   }
   return true;
+}
+
+/** Companies that have an interview list, alphabetical. */
+export function companyOrder(items: Problem[]): string[] {
+  return [...new Set(items.flatMap((p) => p.companies ?? []))].sort();
 }
 
 /** Platforms ordered by frequency, with the pseudo-platforms last. */

@@ -11,6 +11,7 @@ SP = 'spoj.com/problems/'
 
 # url-suffix -> LeetCode slug of an equivalent problem with comparable constraints/approach
 LC_EQUIV = {
+    'geeksforgeeks.org/problems/0-1-knapsack-problem0945/1': 'partition-equal-subset-sum',
     CS + '2205': 'gray-code',
     CS + '1653': 'minimum-number-of-work-sessions-to-finish-the-tasks',
     CS + '1133': 'sum-of-distances-in-tree',

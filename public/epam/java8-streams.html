@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 8 Streams: EPAM interview answers</title>
+<style>
+:root{--bg:#f7f7f5;--fg:#1c1c1a;--mut:#62625c;--card:#fff;--line:#e3e2dc;--acc:#2f6f5e;--code:#1f2124;--codefg:#e8e6df;--soft:#eef4f1}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--fg:#ecebe6;--mut:#a3a29b;--card:#1d1d1b;--line:#2f2e2b;--acc:#7cc4ae;--code:#0f1011;--codefg:#e8e6df;--soft:#1f2a26}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 80px;display:grid;grid-template-columns:260px 1fr;gap:40px}
+aside{position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow:auto}
+aside a{display:flex;gap:10px;padding:6px 8px;border-radius:6px;color:var(--mut);text-decoration:none;font-size:14px;line-height:1.35}
+aside a:hover{background:var(--soft);color:var(--fg)}aside a span{font:12px ui-monospace,Menlo,monospace;color:var(--acc);padding-top:2px}
+.toc-h{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 8px 8px}
+h1{font-size:34px;line-height:1.15;margin:0 0 10px;letter-spacing:-.02em}
+.lede{color:var(--mut);max-width:68ch;margin:0 0 28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 26px;margin:0 0 22px;scroll-margin-top:20px}
+.card header{display:flex;align-items:baseline;gap:12px}.card h2{font-size:21px;margin:0;letter-spacing:-.01em}
+.n{font:600 13px ui-monospace,Menlo,monospace;color:var(--acc)}
+.idea{margin:10px 0 16px}
+code{font:.88em ui-monospace,SFMono-Regular,Menlo,monospace}p code,li code,.cheat code{background:var(--soft);padding:1px 5px;border-radius:4px}
+.code{position:relative}pre{margin:0;overflow:auto}
+.code pre{background:var(--code);color:var(--codefg);padding:18px 20px;border-radius:9px;font-size:13.5px;line-height:1.55}
+.code pre code{font-size:inherit}
+.copy{position:absolute;top:10px;right:10px;font:12px inherit;background:#ffffff1a;color:#e8e6df;border:1px solid #ffffff2a;border-radius:6px;padding:4px 10px;cursor:pointer}
+.copy:hover{background:#ffffff2e}
+.row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin:14px 0 16px}
+.out pre{background:var(--soft);padding:10px 14px;border-radius:8px;font:13px ui-monospace,Menlo,monospace;white-space:pre-wrap}
+.cx p{margin:0;font-size:14.5px}
+.lbl{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:5px;font-weight:600}
+ul{margin:4px 0 0;padding-left:20px}li{margin:4px 0;font-size:15px}
+.cheat{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px}.cheat div{display:flex;flex-direction:column;font-size:14px;padding:6px 0;border-bottom:1px solid var(--line)}
+.cheat span{color:var(--mut)}
+details{margin-top:6px}summary{cursor:pointer;color:var(--acc);font-weight:600}
+footer{color:var(--mut);font-size:13px;margin-top:30px}
+@media (max-width:860px){.wrap{grid-template-columns:1fr}aside{position:static;max-height:none}.row,.cheat{grid-template-columns:1fr}}
+@media print{aside,.copy{display:none}.wrap{display:block}.card{break-inside:avoid}}
+</style></head><body><div class="wrap">
+<aside><p class="toc-h">Questions</p><a href="#setup"><span>00</span>Shared setup</a><a href="#q1"><span>01</span>Second-highest number in a list</a><a href="#q2"><span>02</span>Duplicate elements in a list</a><a href="#q3"><span>03</span>Frequency of each character in a string</a><a href="#q4"><span>04</span>Group employees by department</a><a href="#q5"><span>05</span>Highest-paid employee in each department</a><a href="#q6"><span>06</span>Sort employees by salary, descending</a><a href="#q7"><span>07</span>First non-repeating character</a><a href="#q8"><span>08</span>Convert a list of lists into a single list</a><a href="#q9"><span>09</span>Partition numbers into even and odd</a><a href="#q10"><span>10</span>Top 3 highest-paid employees</a><a href="#q11"><span>11</span>Most frequent word in a list of sentences</a><a href="#q12"><span>12</span>Sum of salaries by department</a><a href="#cheat"><span>★</span>Collectors cheat sheet</a></aside>
+<main>
+<h1>Java 8 Streams: interview answers</h1>
+<p class="lede">The 12 Streams questions from the EPAM prep guide, each with an approach, working code, real output, complexity, and the follow-ups interviewers usually ask. Everything was compiled with <code>javac --release 8</code> and run, and each output shown here is copied from that run. The full runnable file is <a href="StreamsPrep.java" download><code>StreamsPrep.java</code></a>. <a href="/">← Back to the tracker</a></p>
+<section class="card" id="setup"><header><span class="n">00</span><h2>Shared setup</h2></header>
+<p class="idea">Questions 4, 5, 6, 10 and 12 use this data. It's a plain class with getters, not a <code>record</code>: records arrived in Java 16, and the interview says Java 8.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
+
+class Employee {
+    private final String name, dept;
+    private final double salary;
+    Employee(String name, String dept, double salary) {
+        this.name = name; this.dept = dept; this.salary = salary;
+    }
+    String getName()   { return name; }
+    String getDept()   { return dept; }
+    double getSalary() { return salary; }
+}
+
+List&lt;Employee&gt; employees = Arrays.asList(
+    new Employee(&quot;Asha&quot;,  &quot;Engineering&quot;, 120000),
+    new Employee(&quot;Ravi&quot;,  &quot;Engineering&quot;,  95000),
+    new Employee(&quot;Meera&quot;, &quot;HR&quot;,           60000),
+    new Employee(&quot;Karan&quot;, &quot;Sales&quot;,        70000),
+    new Employee(&quot;Divya&quot;, &quot;Engineering&quot;, 135000),
+    new Employee(&quot;Arjun&quot;, &quot;HR&quot;,           65000),
+    new Employee(&quot;Neha&quot;,  &quot;Sales&quot;,        82000));</code></pre></div>
+<details><summary>Java 8 vs newer: what to avoid writing in a "Java 8" interview</summary><ul>
+<li><code>stream.toList()</code> is Java 16. Use <code>collect(Collectors.toList())</code>.</li>
+<li><code>List.of(...)</code> and <code>Map.of(...)</code> are Java 9. Use <code>Arrays.asList(...)</code> or <code>Collections.emptyList()</code>.</li>
+<li><code>String.isBlank()</code> is Java 11. Use <code>trim().isEmpty()</code>.</li>
+<li><code>Optional.isEmpty()</code> is Java 11. Use <code>!isPresent()</code>. <code>Optional.orElseThrow()</code> with no argument is Java 10.</li>
+<li><code>Collectors.teeing</code> is Java 12. <code>takeWhile</code>/<code>dropWhile</code> are Java 9.</li>
+<li>If they allow modern Java, say so and use the shorter forms. Knowing the difference is the signal.</li></ul></details>
+</section>
+<section class="card" id="q1">
+<header><span class="n">01</span><h2>Second-highest number in a list</h2></header>
+<p class="idea">Remove duplicates first, sort descending, skip the largest, then take the next one. Return an <code>Optional</code>, because the list may have fewer than two distinct values.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>List&lt;Integer&gt; nums = Arrays.asList(5, 9, 2, 9, 7, 5);
+
+Optional&lt;Integer&gt; second = nums.stream()
+        .distinct()
+        .sorted(Comparator.reverseOrder())
+        .skip(1)
+        .findFirst();</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>Optional[7]</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n log n) time, O(n) space.</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>Without <code>distinct()</code>, [5, 9, 9] would give 9. That's the classic bug interviewers watch for.</li><li>[7, 7] or an empty list → <code>Optional.empty</code>. Say this edge case out loud.</li><li>Follow-up "do it in O(n)": one pass with two variables (<code>first</code>, <code>second</code>), no stream needed.</li><li>Same pattern for Nth highest: <code>skip(n - 1)</code>.</li></ul>
+</section><section class="card" id="q2">
+<header><span class="n">02</span><h2>Duplicate elements in a list</h2></header>
+<p class="idea">Two standard answers. (a) A <code>HashSet</code> whose <code>add()</code> returns false for a repeat. It's short, but the lambda has a side effect. (b) Count with <code>groupingBy</code> and keep the keys whose count is above 1. It's pure, and the one to lead with.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>List&lt;Integer&gt; list = Arrays.asList(1, 4, 2, 4, 3, 1, 4);
+
+// (a) Set.add trick: short, but stateful (not safe with parallel streams)
+Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();
+List&lt;Integer&gt; dupsA = list.stream()
+        .filter(n -&gt; !seen.add(n))
+        .distinct()
+        .collect(Collectors.toList());          // [4, 1]  (order of the 2nd occurrence)
+
+// (b) count then filter: side-effect free
+Set&lt;Integer&gt; dupsB = list.stream()
+        .collect(Collectors.groupingBy(Function.identity(),
+                 LinkedHashMap::new, Collectors.counting()))
+        .entrySet().stream()
+        .filter(e -&gt; e.getValue() &gt; 1)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toCollection(LinkedHashSet::new));   // [1, 4]</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>[4, 1]   (a)
+[1, 4]   (b)</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n) time, O(n) space for both.</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>Expect the question: why is (a) risky? Stateful lambdas break with <code>parallel()</code>, and the Stream API docs advise against them.</li><li><code>LinkedHashMap::new</code> keeps first-seen order. A plain <code>groupingBy</code> returns a <code>HashMap</code> with no defined order.</li><li><code>Collections.frequency(list, x) > 1</code> inside a filter also works, but it's O(n²). Mention it as the brute force.</li></ul>
+</section><section class="card" id="q3">
+<header><span class="n">03</span><h2>Frequency of each character in a string</h2></header>
+<p class="idea"><code>String.chars()</code> gives an <code>IntStream</code>. Box each value to <code>Character</code>, then group by identity and count.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>String s = &quot;programming&quot;;
+
+Map&lt;Character, Long&gt; freq = s.chars()
+        .mapToObj(c -&gt; (char) c)
+        .collect(Collectors.groupingBy(Function.identity(),
+                 LinkedHashMap::new, Collectors.counting()));</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>{p=1, r=2, o=1, g=2, a=1, m=2, i=1, n=1}</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n) time, O(k) space (k = distinct characters).</p></div></div>
+<div class="lbl">Interview notes</div><ul><li><code>counting()</code> returns <code>Long</code>, not <code>Integer</code>. For Integer, use <code>Collectors.summingInt(c -> 1)</code>.</li><li>Case-insensitive: add <code>.map(Character::toLowerCase)</code>. To skip spaces: <code>.filter(c -> c != ' ')</code>.</li><li>Without streams, an <code>int[26]</code> or <code>int[128]</code> array is faster. Worth mentioning.</li></ul>
+</section><section class="card" id="q4">
+<header><span class="n">04</span><h2>Group employees by department</h2></header>
+<p class="idea"><code>groupingBy</code> with a downstream collector. <code>mapping()</code> keeps just the names instead of whole objects. <code>TreeMap::new</code> sorts the departments.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>Map&lt;String, List&lt;String&gt;&gt; byDept = employees.stream()
+        .collect(Collectors.groupingBy(Employee::getDept,
+                 TreeMap::new,
+                 Collectors.mapping(Employee::getName, Collectors.toList())));
+
+// simplest form (values are List&lt;Employee&gt;):
+// employees.stream().collect(Collectors.groupingBy(Employee::getDept));</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>{Engineering=[Asha, Ravi, Divya], HR=[Meera, Arjun], Sales=[Karan, Neha]}</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n) time with a HashMap, O(n log d) with a TreeMap.</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>Know the three overloads: <code>groupingBy(f)</code>, <code>groupingBy(f, downstream)</code>, <code>groupingBy(f, mapFactory, downstream)</code>.</li><li>Count per department: <code>groupingBy(Employee::getDept, counting())</code>.</li><li>Average salary per department: <code>groupingBy(Employee::getDept, averagingDouble(Employee::getSalary))</code>.</li></ul>
+</section><section class="card" id="q5">
+<header><span class="n">05</span><h2>Highest-paid employee in each department</h2></header>
+<p class="idea">Two ways. <code>groupingBy</code> + <code>maxBy</code> gives <code>Optional&lt;Employee&gt;</code> values, which is awkward. <code>toMap</code> with a merge function that keeps the higher salary gives plain <code>Employee</code> values. Lead with <code>toMap</code>.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>Comparator&lt;Employee&gt; bySalary = Comparator.comparingDouble(Employee::getSalary);
+
+// (a) toMap + merge function: values are Employee, not Optional
+Map&lt;String, Employee&gt; top = employees.stream()
+        .collect(Collectors.toMap(Employee::getDept,
+                 Function.identity(),
+                 BinaryOperator.maxBy(bySalary),
+                 TreeMap::new));
+
+// (b) groupingBy + maxBy: values are Optional&lt;Employee&gt;
+Map&lt;String, Optional&lt;Employee&gt;&gt; top2 = employees.stream()
+        .collect(Collectors.groupingBy(Employee::getDept,
+                 Collectors.maxBy(bySalary)));
+
+// (c) groupingBy + collectingAndThen to unwrap the Optional
+Map&lt;String, Employee&gt; top3 = employees.stream()
+        .collect(Collectors.groupingBy(Employee::getDept,
+                 Collectors.collectingAndThen(
+                     Collectors.maxBy(bySalary), Optional::get)));</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>Engineering -&gt; Divya
+HR -&gt; Arjun
+Sales -&gt; Neha</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n) time, O(d) space.</p></div></div>
+<div class="lbl">Interview notes</div><ul><li><code>toMap</code> without a merge function throws <code>IllegalStateException: Duplicate key</code> once a key repeats. A common trap.</li><li><code>Optional::get</code> in (c) is safe because a group always has at least one element.</li><li>Ties: <code>maxBy</code> keeps the first of equal elements. If they ask, add <code>.thenComparing(...)</code>.</li></ul>
+</section><section class="card" id="q6">
+<header><span class="n">06</span><h2>Sort employees by salary, descending</h2></header>
+<p class="idea"><code>Comparator.comparingDouble(...).reversed()</code>. Add a tie-breaker with <code>thenComparing</code>.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>List&lt;String&gt; sorted = employees.stream()
+        .sorted(Comparator.comparingDouble(Employee::getSalary).reversed()
+                          .thenComparing(Employee::getName))
+        .map(Employee::getName)
+        .collect(Collectors.toList());</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>[Divya, Asha, Ravi, Neha, Karan, Arjun, Meera]</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n log n) time.</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>Trap: <code>reversed()</code> reverses the whole chain built so far. <code>comparing(a).thenComparing(b).reversed()</code> reverses <i>both</i> keys.</li><li>To reverse a single key: <code>thenComparing(Employee::getName, Comparator.reverseOrder())</code>.</li><li><code>comparingDouble</code> avoids boxing. <code>Comparator.comparing(Employee::getSalary)</code> also works, with boxing.</li></ul>
+</section><section class="card" id="q7">
+<header><span class="n">07</span><h2>First non-repeating character</h2></header>
+<p class="idea">Count with a <code>LinkedHashMap</code>, which keeps insertion order, then return the first entry with count 1.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>String word = &quot;swiss&quot;;
+
+Optional&lt;Character&gt; firstUnique = word.chars()
+        .mapToObj(c -&gt; (char) c)
+        .collect(Collectors.groupingBy(Function.identity(),
+                 LinkedHashMap::new, Collectors.counting()))
+        .entrySet().stream()
+        .filter(e -&gt; e.getValue() == 1L)
+        .map(Map.Entry::getKey)
+        .findFirst();</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>Optional[w]</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n) time, O(k) space.</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>With a plain <code>HashMap</code> the answer is unpredictable. Explain why you chose LinkedHashMap. That's what they're testing.</li><li>First <i>repeating</i> character (from the DSA list) uses the Set trick instead: <code>chars().mapToObj(c -> (char) c).filter(c -> !seen.add(c)).findFirst()</code> → 's' for "swiss".</li><li><code>e.getValue() == 1L</code>: the value is a <code>Long</code>, and the comparison unboxes it, so it's correct.</li></ul>
+</section><section class="card" id="q8">
+<header><span class="n">08</span><h2>Convert a list of lists into a single list</h2></header>
+<p class="idea"><code>flatMap</code> turns each inner list into a stream and concatenates them.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>List&lt;List&lt;Integer&gt;&gt; nested = Arrays.asList(
+        Arrays.asList(1, 2), Arrays.asList(3),
+        Collections.emptyList(), Arrays.asList(4, 5));
+
+List&lt;Integer&gt; flat = nested.stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toList());</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>[1, 2, 3, 4, 5]</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(total elements).</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>Explain the difference: <code>map</code> is one-to-one (you'd get <code>Stream&lt;List&lt;Integer&gt;&gt;</code>), while <code>flatMap</code> is one-to-many and flattens.</li><li>Empty inner lists are skipped. Null inner lists throw an NPE. Guard with <code>.filter(Objects::nonNull)</code>.</li><li>Variant: all unique skills of all employees → <code>flatMap(e -> e.getSkills().stream()).distinct()</code>.</li></ul>
+</section><section class="card" id="q9">
+<header><span class="n">09</span><h2>Partition numbers into even and odd</h2></header>
+<p class="idea"><code>partitioningBy</code> takes a predicate and always returns a map with both keys, <code>true</code> and <code>false</code>.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>Map&lt;Boolean, List&lt;Integer&gt;&gt; evenOdd = IntStream.rangeClosed(1, 10)
+        .boxed()
+        .collect(Collectors.partitioningBy(n -&gt; n % 2 == 0));
+
+List&lt;Integer&gt; even = evenOdd.get(true);
+List&lt;Integer&gt; odd  = evenOdd.get(false);</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>even=[2, 4, 6, 8, 10]
+odd=[1, 3, 5, 7, 9]</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n).</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>partitioningBy vs groupingBy: partitioning always has both keys, even when one list is empty. groupingBy only has keys that occur.</li><li><code>boxed()</code> is needed because <code>IntStream</code> has no <code>collect(Collector)</code>.</li><li>Negative numbers: <code>-3 % 2 == -1</code>, so test <code>n % 2 == 0</code> for even, never <code>n % 2 == 1</code> for odd.</li></ul>
+</section><section class="card" id="q10">
+<header><span class="n">10</span><h2>Top 3 highest-paid employees</h2></header>
+<p class="idea">Sort descending by salary, then <code>limit(3)</code>.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>List&lt;String&gt; top3 = employees.stream()
+        .sorted(Comparator.comparingDouble(Employee::getSalary).reversed())
+        .limit(3)
+        .map(Employee::getName)
+        .collect(Collectors.toList());</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>[Divya, Asha, Ravi]</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n log n). With a size-k min-heap: O(n log k).</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>Follow-up "what if n is huge?": a <code>PriorityQueue</code> of size k gives O(n log k). That links to Kth Largest Element (LC 215) from the DSA list.</li><li>Top 3 <i>per department</i>: <code>groupingBy(dept, collectingAndThen(toList(), l -> l.stream().sorted(...).limit(3).collect(toList())))</code>.</li><li>Distinct salaries only (ignoring ties): map to salary, <code>distinct()</code>, sort, <code>limit(3)</code>.</li></ul>
+</section><section class="card" id="q11">
+<header><span class="n">11</span><h2>Most frequent word in a list of sentences</h2></header>
+<p class="idea">Split each sentence into words with <code>flatMap</code>, lowercase them, count with <code>groupingBy</code>, then take the entry with the highest count.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>List&lt;String&gt; sentences = Arrays.asList(
+        &quot;the cat sat&quot;, &quot;The dog sat down&quot;, &quot;the cat and the dog&quot;);
+
+Optional&lt;Map.Entry&lt;String, Long&gt;&gt; top = sentences.stream()
+        .flatMap(line -&gt; Arrays.stream(line.toLowerCase().split(&quot;\\W+&quot;)))
+        .filter(w -&gt; !w.isEmpty())
+        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+        .entrySet().stream()
+        .max(Map.Entry.&lt;String, Long&gt;comparingByValue()
+             .thenComparing(Map.Entry.comparingByKey(Comparator.reverseOrder())));</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>Optional[the=4]</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(total words) time, O(distinct words) space.</p></div></div>
+<div class="lbl">Interview notes</div><ul><li><code>split("\\W+")</code> splits on punctuation as well as spaces. A leading separator produces an empty first token, hence the filter.</li><li>Ties: <code>comparingByKey(reverseOrder())</code> inside <code>max</code> picks the alphabetically <i>smallest</i> word. Say which tie rule you're using.</li><li><code>Map.Entry.&lt;String, Long&gt;comparingByValue()</code> needs the explicit type witness because <code>thenComparing</code> is chained after it.</li></ul>
+</section><section class="card" id="q12">
+<header><span class="n">12</span><h2>Sum of salaries by department</h2></header>
+<p class="idea"><code>groupingBy</code> with <code>summingDouble</code> as the downstream collector.</p>
+<div class="code"><button class="copy" type="button">Copy</button><pre><code>Map&lt;String, Double&gt; total = employees.stream()
+        .collect(Collectors.groupingBy(Employee::getDept,
+                 TreeMap::new,
+                 Collectors.summingDouble(Employee::getSalary)));</code></pre></div>
+<div class="row"><div class="out"><div class="lbl">Output</div><pre>{Engineering=350000.0, HR=125000.0, Sales=152000.0}</pre></div><div class="cx"><div class="lbl">Complexity</div><p>O(n).</p></div></div>
+<div class="lbl">Interview notes</div><ul><li>All the stats in one pass: <code>summarizingDouble(Employee::getSalary)</code> gives count, sum, min, average and max.</li><li>Real code uses <code>BigDecimal</code> for money. Then use <code>reducing(BigDecimal.ZERO, Employee::getSalary, BigDecimal::add)</code>. Saying this is a good senior-level signal.</li><li>Department with the highest total: stream the result map's <code>entrySet()</code> and call <code>max(Map.Entry.comparingByValue())</code>.</li></ul>
+</section>
+<section class="card" id="cheat"><header><span class="n">★</span><h2>Collectors cheat sheet</h2></header><div class="cheat"><div><code>filter / map / flatMap</code><span>Transform the stream: filter keeps some elements, map converts one to one, flatMap one to many.</span></div><div><code>distinct / sorted / skip / limit</code><span>Drop duplicates, order, and slice.</span></div><div><code>findFirst / anyMatch / max / count</code><span>Terminal: returns an Optional, boolean or long.</span></div><div><code>groupingBy(f, factory, downstream)</code><span>Map&lt;K, R&gt;: buckets elements by key.</span></div><div><code>partitioningBy(pred)</code><span>Map&lt;Boolean, List&gt;: always has both keys.</span></div><div><code>toMap(k, v, merge, factory)</code><span>Throws on a duplicate key unless you pass merge.</span></div><div><code>counting / summingX / averagingX</code><span>Numeric downstream collectors.</span></div><div><code>mapping / maxBy / collectingAndThen</code><span>Reshape or unwrap each group.</span></div><div><code>joining(", ", "[", "]")</code><span>Join strings with a separator, prefix and suffix.</span></div><div><code>IntStream.range / chars / boxed</code><span>Primitive streams: call boxed() before collect.</span></div></div>
+<div class="lbl" style="margin-top:16px">Concepts they may ask about alongside these</div><ul>
+<li><b>Lazy evaluation:</b> intermediate operations run only when a terminal operation is called. A stream can be consumed only once.</li>
+<li><b>Stateless vs stateful operations:</b> <code>sorted</code> and <code>distinct</code> buffer elements. <code>limit</code> and <code>findFirst</code> short-circuit.</li>
+<li><b>Parallel streams:</b> use them only for large, CPU-bound, side-effect-free work. They run on the common ForkJoinPool.</li>
+<li><b>Functional interfaces:</b> <code>Predicate</code>, <code>Function</code>, <code>Consumer</code>, <code>Supplier</code>, <code>BiFunction</code>, <code>UnaryOperator</code>, <code>BinaryOperator</code>.</li>
+<li><b>Optional:</b> use it for return values, not for fields or parameters. Prefer <code>map</code>/<code>orElse</code> over <code>get()</code>.</li></ul></section>
+<footer>Written for personal interview prep · 12 questions · verified on OpenJDK 17 with <code>--release 8</code></footer>
+</main></div>
+<script>document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{navigator.clipboard.writeText(b.nextElementSibling.innerText).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1200)})}));</script>
+</body></html>

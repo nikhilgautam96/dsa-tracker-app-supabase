@@ -1,5 +1,5 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
-import { Link2Off, Star, X } from 'lucide-react';
+import { Building2, Link2Off, Star, X } from 'lucide-react';
 import type { Filters, Status } from '../lib/types';
 import { LEVELS, SOURCE_GROUPS, STATUSES } from '../lib/filters';
 import { MultiSelect } from './ui/MultiSelect';
@@ -9,6 +9,7 @@ export interface FacetCounts {
   cat: Record<string, number>;
   src: Record<string, number>;
   plat: Record<string, number>;
+  company: Record<string, number>;
 }
 
 interface FilterProps {
@@ -16,6 +17,7 @@ interface FilterProps {
   setF: Dispatch<SetStateAction<Filters>>;
   counts: FacetCounts;
   platforms: string[];
+  companies: string[];
   missingLinkCount: number;
 }
 
@@ -74,10 +76,37 @@ function FlagPills({ f, setF, missingLinkCount }: Pick<FilterProps, 'f' | 'setF'
   );
 }
 
+/** One pill per company interview list. */
+function CompanyPills({ f, setF, counts, companies, big = false }: Pick<FilterProps, 'f' | 'setF' | 'counts' | 'companies'> & { big?: boolean }) {
+  return (
+    <div role="group" aria-label="Company" className="flex flex-wrap gap-1.5">
+      {companies.map((c) => (
+        <button
+          key={c}
+          type="button"
+          className={`pill ${big ? 'min-h-10' : ''}`}
+          aria-pressed={f.company.has(c)}
+          onClick={() => setF((p) => ({ ...p, company: toggleSet(p.company, c) }))}
+          title={`Problems from the ${c} interview prep list`}
+        >
+          <Building2 className="size-3.5" aria-hidden="true" />
+          {c} <span className="font-mono text-micro opacity-70">{counts.company[c] ?? 0}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /** Desktop filter bar (inside the sticky top bar). */
-export function FilterBar({ f, setF, counts, platforms, missingLinkCount }: FilterProps) {
+export function FilterBar({ f, setF, counts, platforms, companies, missingLinkCount }: FilterProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {companies.length > 0 && (
+        <>
+          <CompanyPills f={f} setF={setF} counts={counts} companies={companies} />
+          <span className="mx-1 h-5 w-px bg-line" aria-hidden="true" />
+        </>
+      )}
       <MultiSelect
         label="Source"
         options={SOURCE_GROUPS}
@@ -108,6 +137,7 @@ export function ActiveChips({ f, setF, onClearAll }: Pick<FilterProps, 'f' | 'se
     ...[...f.cat].map((c) => ({ label: c, remove: () => setF((p) => ({ ...p, cat: toggleSet(p.cat, c) })) })),
     ...[...f.src].map((s) => ({ label: s, remove: () => setF((p) => ({ ...p, src: toggleSet(p.src, s) })) })),
     ...[...f.plat].map((s) => ({ label: s, remove: () => setF((p) => ({ ...p, plat: toggleSet(p.plat, s) })) })),
+    ...[...f.company].map((c) => ({ label: c, remove: () => setF((p) => ({ ...p, company: toggleSet(p.company, c) })) })),
     ...[...f.level].map((l) => ({ label: l, remove: () => setF((p) => ({ ...p, level: toggleSet(p.level, l) })) })),
     ...(f.status !== 'All' ? [{ label: f.status, remove: () => setF((p) => ({ ...p, status: 'All' as Status })) }] : []),
     ...(f.revisit ? [{ label: 'Revisit', remove: () => setF((p) => ({ ...p, revisit: false })) }] : []),
@@ -137,7 +167,7 @@ export function ActiveChips({ f, setF, onClearAll }: Pick<FilterProps, 'f' | 'se
 }
 
 /** Mobile: every filter in one scrollable sheet body (topics included). */
-export function FilterSheetBody({ f, setF, counts, platforms, missingLinkCount, cats }: FilterProps & { cats: string[] }) {
+export function FilterSheetBody({ f, setF, counts, platforms, companies, missingLinkCount, cats }: FilterProps & { cats: string[] }) {
   const section = (title: string, children: ReactNode) => (
     <section className="py-3">
       <h3 className="label-micro mb-2">{title}</h3>
@@ -157,6 +187,7 @@ export function FilterSheetBody({ f, setF, counts, platforms, missingLinkCount, 
   );
   return (
     <div className="divide-y divide-line-soft">
+      {companies.length > 0 && section('Company', <CompanyPills f={f} setF={setF} counts={counts} companies={companies} big />)}
       {section('Status', <StatusControl f={f} setF={setF} />)}
       {section('Difficulty', <LevelPills f={f} setF={setF} />)}
       {section(
