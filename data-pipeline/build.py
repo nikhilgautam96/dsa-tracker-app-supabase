@@ -43,7 +43,8 @@ CATS = ['Arrays & Hashing', 'Two Pointers', 'Sliding Window', 'Stack & Monotonic
         'Linked List', 'Trees', 'Tries', 'Heap / Priority Queue', 'Intervals', 'Backtracking', 'Graphs',
         'Advanced Graphs', 'Dynamic Programming', 'Greedy', 'Bit Manipulation', 'Math & Number Theory',
         'Matrix', 'Strings & Text Processing', 'Design', 'Range Queries & Segment Tree', 'DSU & MST',
-        'Binary Lifting & Euler Tour', 'Geometry', 'Game Theory', 'Constructive', 'Interactive', 'Concurrency']
+        'Binary Lifting & Euler Tour', 'Geometry', 'Game Theory', 'Constructive', 'Interactive', 'Concurrency',
+        'Java 8 Streams']
 
 LC_OVERRIDE = {
     # intervals
@@ -98,6 +99,7 @@ LC_OVERRIDE = {
     'the-skyline-problem': 'Range Queries & Segment Tree', 'swim-in-rising-water': 'DSU & MST',
     'min-cost-to-connect-all-points': 'DSU & MST', 'design-search-autocomplete-system': 'Tries',
     'kth-ancestor-of-a-tree-node': 'Binary Lifting & Euler Tour', 'stream-of-characters': 'Tries',
+    'first-letter-to-appear-twice': 'Arrays & Hashing',
 }
 
 def lc_category(slug, in_design_list=False):
@@ -142,7 +144,7 @@ def add_lc(slug, source, cat=None, sub=None, in_design=False):
     it = items[key]
     if cat and it['cat'] != cat and source.startswith('Roadmap'):
         it['cat'] = cat  # roadmap pillar wins: it is the user's own study plan
-    if source not in it['sources']: it['sources'].append(source)
+    if source and source not in it['sources']: it['sources'].append(source)
     if sub and sub not in it['notes']: it['notes'].append(sub)
     return it
 
@@ -152,7 +154,7 @@ def add_ext(url, title, platform, diff, cat, source, sub=None, video=None, conf=
         items[key] = dict(key=key, title=title, num=num, url=url, platform=platform, diff=diff, premium=False,
                           cat=cat, tags=[], sources=[], notes=[], videos=[], conf=conf, solved=[], pk=url)
     it = items[key]
-    if source not in it['sources']: it['sources'].append(source)
+    if source and source not in it['sources']: it['sources'].append(source)
     if sub and sub not in it['notes']: it['notes'].append(sub)
     if video and video not in it['videos']: it['videos'].append(video)
     rank = {'exact': 0, 'best': 1, 'practice': 2, 'concept': 3, 'search': 4}
@@ -257,6 +259,27 @@ for line in open(f'{D}/yt.txt', encoding='utf-8').read().splitlines():
         add_ext(target, disp, plat, '', cat, src, sub=sub, video=video, conf=conf, key=vkey)
 
 for u in unresolved: print('UNRESOLVED', u)
+
+# ---------------- 3b. company interview lists (Company filter) ----------------
+from companies import COMPANIES
+for company, (entries, page) in COMPANIES.items():
+    for note, e in entries:
+        if e[0] == 'lc':
+            it = add_lc(e[1], None)
+        elif e[0] == 'ext':
+            _, url, title, plat, cat = e
+            it = add_ext(url, title, plat, '', cat, None)
+        else:
+            _, anchor, title = e
+            key = f'{company.lower()}:{anchor}'
+            it = items.setdefault(key, dict(key=key, title=title, num=None, url=f'{page}#{anchor}', platform='Concept',
+                                            diff='', premium=False, cat='Java 8 Streams', tags=['Java 8', 'Streams'],
+                                            sources=[], notes=[], videos=[], conf='concept', solved=[], pk=key))
+        if it is None: raise SystemExit(f'{company}: cannot resolve {e}')
+        it.setdefault('companies', [])
+        if company not in it['companies']: it['companies'].append(company)
+        tag = f'{company} guide: {note}'
+        if tag not in it['notes']: it['notes'].append(tag)
 
 # ---------------- 4. Notion "done" marks ----------------
 NOTION_ALIAS = {'3sum': '3sum', 'invertflipbinarytree': 'invert-binary-tree', 'reversealinkedlist': 'reverse-linked-list',

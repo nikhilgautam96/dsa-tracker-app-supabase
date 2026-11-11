@@ -24,6 +24,8 @@ export interface Problem {
   cat: string;
   tags: string[];
   sources: string[];
+  /** companies whose interview lists include this problem (Company filter) */
+  companies?: string[];
   notes: string[];
   videos: Video[];
   conf: Confidence;
@@ -63,6 +65,7 @@ export interface Filters {
   cat: Set<string>;
   src: Set<string>;
   plat: Set<string>;
+  company: Set<string>;
   level: Set<Level>;
   status: Status;
   revisit: boolean;

@@ -2,7 +2,7 @@ import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, use
 import type { Session } from '@supabase/supabase-js';
 import { Menu, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { Filters, Problem, ProblemData } from '../lib/types';
-import { activeFilterCount, emptyFilters, matches, platformOrder, srcGroup, type FacetSkip } from '../lib/filters';
+import { activeFilterCount, companyOrder, emptyFilters, matches, platformOrder, srcGroup, type FacetSkip } from '../lib/filters';
 import { UserFacingError } from '../lib/trackerStore';
 import { useTracker } from '../hooks/useTracker';
 import { Sidebar, type TopicStat } from './Sidebar';
@@ -62,6 +62,7 @@ export function Tracker({ data, session, onSignOut }: TrackerProps) {
 
   const filters = useMemo(() => ({ ...f, q }), [f, q]);
   const platforms = useMemo(() => platformOrder(data.items), [data.items]);
+  const companies = useMemo(() => companyOrder(data.items), [data.items]);
   const knownKeys = useMemo(() => new Set(data.items.map((p) => p.pk)), [data.items]);
 
   useEffect(() => {
@@ -93,6 +94,7 @@ export function Tracker({ data, session, onSignOut }: TrackerProps) {
       cat: facet('cat', (p) => [p.cat]),
       src: facet('src', (p) => p.sources.map(srcGroup)),
       plat: facet('plat', (p) => [p.platform]),
+      company: facet('company', (p) => p.companies ?? []),
     };
     const byCat = new Map<string, TopicStat>(data.cats.map((c) => [c, { cat: c, total: 0, solved: 0 }]));
     let allTopicCount = 0;
@@ -242,7 +244,7 @@ export function Tracker({ data, session, onSignOut }: TrackerProps) {
             </p>
           </div>
           <div className="mt-2.5 hidden md:block">
-            <FilterBar f={f} setF={setF} counts={counts} platforms={platforms} missingLinkCount={missingLinkCount} />
+            <FilterBar f={f} setF={setF} counts={counts} platforms={platforms} companies={companies} missingLinkCount={missingLinkCount} />
           </div>
           <div className={filterCount || f.q ? 'mt-2' : ''}>
             <ActiveChips f={filters} setF={setF} onClearAll={clearAll} />
@@ -333,7 +335,7 @@ export function Tracker({ data, session, onSignOut }: TrackerProps) {
           </>
         }
       >
-        <FilterSheetBody f={f} setF={setF} counts={counts} platforms={platforms} missingLinkCount={missingLinkCount} cats={data.cats} />
+        <FilterSheetBody f={f} setF={setF} counts={counts} platforms={platforms} companies={companies} missingLinkCount={missingLinkCount} cats={data.cats} />
       </Sheet>
 
       <DetailPanel problem={detail} store={store} mobile={mobile} onClose={() => setDetail(null)} onRequestUnsolve={setUnsolve} />
