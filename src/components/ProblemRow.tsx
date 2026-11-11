@@ -59,6 +59,11 @@ export const ProblemRow = memo(function ProblemRow({ p, entry, hasNote, form, on
                 Premium
               </span>
             )}
+            {p.companies?.map((c) => (
+              <span key={c} className="ml-2 rounded bg-accent-soft px-1.5 py-px text-micro text-accent" title={`On the ${c} interview prep list`}>
+                {c}
+              </span>
+            ))}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 sm:mt-0 sm:flex-nowrap">
             {p.level && (

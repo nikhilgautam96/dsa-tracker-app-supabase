@@ -6,6 +6,16 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-11
+
+### Added
+
+- Company filter, a separate pill group in the filter bar and the mobile sheet, with live counts. The first company is EPAM, with 57 questions: the 44 DSA questions from its prep guide (plus Fruit Into Baskets as a free alternative to Premium #340) and 12 Java 8 Streams questions.
+- 26 new problems: 14 DSA problems from the EPAM list that weren't in the tracker yet, and the 12 Streams questions under a new "Java 8 Streams" topic.
+- Streams answers page at `/epam/java8-streams.html`, which the Streams rows link to. It covers the approach, Java 8 code, verified output and interview notes for each question.
+- Company badge on problem rows. The note "EPAM guide: P1 #2 …" shows where each question sits in the guide, and search matches company names.
+- Company lists live in `data-pipeline/companies.py`. Add a company there and re-run `export.py`.
+
 ## [2.0.0] - 2026-11-11
 
 ### Added
